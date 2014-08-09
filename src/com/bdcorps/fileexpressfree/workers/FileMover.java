@@ -91,10 +91,10 @@ public class FileMover extends AsyncTask<File, Integer, Boolean> {
 			public void run() {
 
 				String message = caller.getString(R.string.copying_path, Util
-						.getFileToPaste().getName());
+						.getFileToPaste().get(0).getName());
 				if (mode == Util.PASTE_MODE_MOVE) {
 					message = caller.getString(R.string.moving_path, Util
-							.getFileToPaste().getName());
+							.getFileToPaste().get(0).getName());
 				}
 				moveProgressDialog = new ProgressDialog(caller);
 				moveProgressDialog

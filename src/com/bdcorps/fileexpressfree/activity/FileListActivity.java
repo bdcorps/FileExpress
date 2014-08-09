@@ -14,7 +14,6 @@ import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -31,9 +30,10 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import com.bdcorps.fileexpressfree.R;
 import com.bdcorps.fileexpressfree.FileExplorerApp;
+import com.bdcorps.fileexpressfree.R;
 import com.bdcorps.fileexpressfree.adapters.FileListAdapter;
 import com.bdcorps.fileexpressfree.callbacks.CancellationCallback;
 import com.bdcorps.fileexpressfree.callbacks.FileActionsCallback;
@@ -54,9 +54,9 @@ public class FileListActivity extends BaseFileListActivity {
 
 	private ListView explorerListView;
 	private File currentDir;
-	private List<FileListEntry> files;
+	private ArrayList<FileListEntry> files;
 	private FileListAdapter adapter;
-	protected Object mCurrentActionMode;
+	protected ActionMode mCurrentActionMode;
 	private ArrayAdapter<CharSequence> mSpinnerAdapter;
 	private CharSequence[] gotoLocations;
 	private boolean isPicker = false;
@@ -64,6 +64,7 @@ public class FileListActivity extends BaseFileListActivity {
 	private File previousOpenDirChild;
 	private boolean focusOnParent;
 	private boolean excludeFromMedia = false;
+	private boolean longed;
 
 	/** Called when the activity is first created. */
 	@Override
@@ -95,13 +96,13 @@ public class FileListActivity extends BaseFileListActivity {
 		files = new ArrayList<FileListEntry>();
 
 		initFileListView();
+		fileArray = adapter.getFileArray();
 		focusOnParent = getPreferenceHelper().focusOnParent();
 		if (getPreferenceHelper().isEulaAccepted()) {
 			listContents(currentDir);
 		} else {
 			EulaPopupBuilder.create(this).show();
 		}
-
 	}
 
 	private void initUi() {
@@ -109,6 +110,17 @@ public class FileListActivity extends BaseFileListActivity {
 			getWindow().setUiOptions(0);
 		}
 
+	}
+
+	private void onListItemCheck(int position) {
+		adapter.toggleSelection(position);
+		if (mCurrentActionMode != null) {
+			if (adapter.getSelectedCount() == 0) {
+				mCurrentActionMode.finish();
+				adapter.removeSelection();
+				longed=false;
+			}
+		}
 	}
 
 	private void initGotoLocations() {
@@ -122,13 +134,19 @@ public class FileListActivity extends BaseFileListActivity {
 		explorerListView.setAdapter(adapter);
 		explorerListView.setTextFilterEnabled(true);
 		explorerListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		
 		explorerListView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(AdapterView<?> parent, View view,
 					int position, long id) {
 				if (explorerListView.isClickable()) {
-					FileListEntry file = (FileListEntry) explorerListView
-							.getAdapter().getItem(position);
-					select(file.getPath());
+					if (!longed) {
+						FileListEntry file = (FileListEntry) explorerListView
+								.getAdapter().getItem(position);
+						select(file.getPath());
+					}
+				}
+				if (mCurrentActionMode != null) {
+					onListItemCheck(position);
 				}
 			}
 
@@ -138,13 +156,16 @@ public class FileListActivity extends BaseFileListActivity {
 		registerForContextMenu(explorerListView);
 	}
 
+	ArrayList<FileListEntry> fileArray;
+
 	private OnItemLongClickListener getLongPressListener() {
 		return new OnItemLongClickListener() {
 			@Override
-			public boolean onItemLongClick(AdapterView<?> arg0,
-					final View view, int arg2, long arg3) {
-				view.setBackgroundColor(Color.parseColor("#ff8c00"));
-
+			public boolean onItemLongClick(AdapterView<?> adapterView,
+					final View view, int position, long id) {
+				longed = true;
+				// view.setBackgroundColor(Color.parseColor("#ff8c00"));
+				onListItemCheck(position);
 				if (!explorerListView.isLongClickable())
 					return true;
 				if (isPicker) {
@@ -152,35 +173,38 @@ public class FileListActivity extends BaseFileListActivity {
 				}
 				view.setSelected(true);
 
-				final FileListEntry fileListEntry = (FileListEntry) adapter
-						.getItem(arg2);
-
 				if (mCurrentActionMode != null) {
 					return false;
-				}
-				if (Util.isProtected(fileListEntry.getPath())) {
-					return false;
-				}
-				explorerListView.setEnabled(false);
+				}/*
+				 * if (Util.isProtected(fileListEntry.getPath())) { return
+				 * false; }
+				 */
+				// explorerListView.setEnabled(false);
 
+				Log.d("StripedLog",
+						"m:" + String.valueOf(fileArray.size()));
+				Toast.makeText(getApplicationContext(),
+						String.valueOf(fileArray.size())+" : "+adapter.getSelectedCount(), Toast.LENGTH_SHORT).show();
+				
 				mCurrentActionMode = FileListActivity.this
 						.startActionMode(new FileActionsCallback(
-								FileListActivity.this, fileListEntry) {
+								FileListActivity.this, ((FileListAdapter) getListView()
+										.getAdapter()).getFileArray()) {
 
 							@Override
 							public void onDestroyActionMode(ActionMode mode) {
+								longed = false;
 								view.setSelected(false);
-								view.setBackgroundColor(Color.TRANSPARENT);
+								// view.setBackgroundColor(Color.TRANSPARENT);
 								mCurrentActionMode = null;
 								explorerListView.setEnabled(true);
-
+								adapter.removeSelection();
 							}
-
 						});
+
 				view.setSelected(true);
 				return true;
 			}
-
 		};
 	}
 
@@ -437,11 +461,15 @@ public class FileListActivity extends BaseFileListActivity {
 			}
 			menu.findItem(R.id.menu_bookmark_toggle).setChecked(
 					bookmarker.isBookmarked(currentDir.getAbsolutePath()));
-			if (Util.canPaste(currentDir)) {
+			
+			if (((FileListAdapter) getListView()
+					.getAdapter()).getSelectedCount()!=0){
+			if (Util.canPaste(((FileListAdapter) getListView()
+					.getAdapter()).getItems().get(0).getPath())) {
 				menu.findItem(R.id.menu_paste).setVisible(true);
 			} else {
 				menu.findItem(R.id.menu_paste).setVisible(false);
-			}
+			}	}
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}
@@ -528,8 +556,7 @@ public class FileListActivity extends BaseFileListActivity {
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 		alert.setTitle(getString(R.string.confirm));
-		alert.setMessage(getString(R.string.confirm_paste_text, Util
-				.getFileToPaste().getName()));
+		alert.setMessage(getString(R.string.confirm_paste_text, "103"));
 
 		alert.setPositiveButton(android.R.string.ok,
 				new DialogInterface.OnClickListener() {

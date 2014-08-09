@@ -1,11 +1,10 @@
 package com.bdcorps.fileexpressfree.callbacks;
 
-import com.bdcorps.fileexpressfree.activity.FileListActivity;
-import com.bdcorps.fileexpressfree.model.FileListEntry;
-import com.bdcorps.fileexpressfree.util.FileActionsHelper;
+import java.util.ArrayList;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.ActionMode;
 import android.view.ActionMode.Callback;
 import android.view.Menu;
@@ -16,27 +15,34 @@ import android.widget.ShareActionProvider;
 import android.widget.ShareActionProvider.OnShareTargetSelectedListener;
 
 import com.bdcorps.fileexpressfree.R;
+import com.bdcorps.fileexpressfree.activity.FileListActivity;
+import com.bdcorps.fileexpressfree.adapters.FileListAdapter;
+import com.bdcorps.fileexpressfree.model.FileListEntry;
+import com.bdcorps.fileexpressfree.util.FileActionsHelper;
+import com.bdcorps.fileexpressfree.util.Util;
 
 public abstract class FileActionsCallback implements Callback {
 
 	private FileListActivity activity;
-	private FileListEntry file;
+	private ArrayList<FileListEntry> fileArray;
 	static int[] allOptions = { R.id.menu_copy, R.id.menu_cut,
 			R.id.menu_delete, R.id.menu_props, R.id.menu_share,
 			R.id.menu_rename, R.id.menu_zip, R.id.menu_unzip };
 
 	public FileActionsCallback(FileListActivity activity,
-			FileListEntry fileListEntry) {
+			ArrayList<FileListEntry> fileArray) {
 
 		this.activity = activity;
-		this.file = fileListEntry;
+		this.fileArray = fileArray;
 
 	}
 
 	@Override
 	public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
-
-		FileActionsHelper.doOperation(file, item.getItemId(), activity,
+Log.d("StripedLog", "msg"+ ((FileListAdapter) activity.getListView()
+		.getAdapter()).getSelectedCount());
+		FileActionsHelper.doOperation(((FileListAdapter) activity.getListView()
+				.getAdapter()).getFileArray(), item.getItemId(), activity,
 				new OperationCallback<Void>() {
 
 					@Override
@@ -55,16 +61,37 @@ public abstract class FileActionsCallback implements Callback {
 
 	@Override
 	public boolean onCreateActionMode(final ActionMode actionMode, Menu menu) {
+		int[] validOptions = null;
+		Log.d("StripedLog",
+				"p: "
+						+ String.valueOf(((FileListAdapter) activity
+								.getListView().getAdapter()).getSelectedCount()));
 
-		int[] validOptions = FileActionsHelper.getContextMenuOptions(
-				file.getPath(), activity);
+		if (((FileListAdapter) activity.getListView().getAdapter())
+				.getSelectedCount() == 1) {
+			validOptions = FileActionsHelper.getContextMenuOptions(
+					((FileListAdapter) activity.getListView().getAdapter())
+							.getFileArray().get(0).getPath(), activity);
+		} else if (((FileListAdapter) activity.getListView().getAdapter())
+				.getSelectedCount() > 1) {
+			for (int i = 0; i < fileArray.size(); i++) {
+				if (Util.isSdCard(fileArray.get(i).getPath())) {
+					validOptions = new int[] { R.id.menu_props };
+					break;
+				} else {
+					validOptions = new int[] { R.id.menu_copy, R.id.menu_cut,
+							R.id.menu_delete, R.id.menu_rename, R.id.menu_props };
+				}
+			}
+		}
 
 		if (validOptions == null || validOptions.length == 0) {
 			onDestroyActionMode(actionMode);
 			return false;
 		}
 		actionMode.setTitle(activity.getString(R.string.selected_,
-				file.getName()));
+				String.valueOf(((FileListAdapter) activity.getListView()
+						.getAdapter()).getSelectedCount())));
 
 		MenuInflater inflater = activity.getMenuInflater();
 
@@ -96,9 +123,10 @@ public abstract class FileActionsCallback implements Callback {
 									return false;
 								}
 							});
+
 					final Intent intent = new Intent(Intent.ACTION_SEND);
 
-					Uri uri = Uri.fromFile(file.getPath());
+					Uri uri = Uri.fromFile((fileArray.get(0)).getPath());
 					String type = MimeTypeMap.getSingleton()
 							.getMimeTypeFromExtension(
 									MimeTypeMap.getFileExtensionFromUrl(uri

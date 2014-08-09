@@ -26,13 +26,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public final class Util {
 
 	private static final String TAG = Util.class.getName();
-	private static File COPIED_FILE = null;
+	private static ArrayList<File> COPIED_FILES = null;
 	private static int pasteMode = 1;
 
 	public static final int PASTE_MODE_COPY = 0;
@@ -41,13 +42,13 @@ public final class Util {
 	private Util() {
 	}
 
-	public static synchronized void setPasteSrcFile(File f, int mode) {
-		COPIED_FILE = f;
+	public static synchronized void setPasteSrcFile(ArrayList<File> filePaths2, int mode) {
+		COPIED_FILES = filePaths2;
 		pasteMode = mode % 2;
 	}
 
-	public static synchronized File getFileToPaste() {
-		return COPIED_FILE;
+	public static synchronized ArrayList<File> getFileToPaste() {
+		return COPIED_FILES;
 	}
 
 	public static synchronized int getPasteMode() {
@@ -211,11 +212,19 @@ public final class Util {
 	}
 
 	public static boolean paste(int mode, File destinationDir, AbortionFlag flag) {
-
+		boolean result =false;
+		for (int i = 0; i < getFileToPaste().size(); i++) {
+			result=paste1(getFileToPaste().get(i),mode,destinationDir,flag);
+		}
+		return result;
+	}
+	
+	public static boolean paste1(File fileToPaste,int mode, File destinationDir,AbortionFlag flag){
 		Log.v(TAG, "Will now paste file on clipboard");
-		File fileBeingPasted = new File(getFileToPaste().getParent(),
-				getFileToPaste().getName());
-		if (doPaste(mode, getFileToPaste(), destinationDir, flag)) {
+		File fileBeingPasted = new File(fileToPaste.getParent(),
+				fileToPaste.getName());
+		
+		if (doPaste(mode, fileToPaste, destinationDir, flag)) {
 			if (getPasteMode() == PASTE_MODE_MOVE) {
 				if (fileBeingPasted.isFile()) {
 					if (FileUtils.deleteQuietly(fileBeingPasted)) {
@@ -271,15 +280,15 @@ public final class Util {
 
 	public static boolean canPaste(File destDir) {
 
-		if (getFileToPaste() == null) {
+		if (COPIED_FILES.get(0) == null) {
 			return false;
 		}
-		if (getFileToPaste().isFile()) {
+		if (COPIED_FILES.get(0).isFile()) {
 			return true;
 		}
 		try {
 			if (destDir.getCanonicalPath().startsWith(
-					COPIED_FILE.getCanonicalPath())) {
+					COPIED_FILES.get(0).getCanonicalPath())) {
 				return false;
 			} else {
 				return true;

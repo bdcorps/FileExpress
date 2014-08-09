@@ -1,6 +1,7 @@
 package com.bdcorps.fileexpressfree.workers;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import com.bdcorps.fileexpressfree.activity.FileListActivity;
 import com.bdcorps.fileexpressfree.callbacks.OperationCallback;
@@ -65,7 +66,9 @@ public class Trasher extends AsyncTask<File, Integer, Boolean> {
 				}
 			});
 		} else {
-			Util.setPasteSrcFile(fileToBeDeleted, Util.getPasteMode());
+			ArrayList<File> tempFiles =new ArrayList<File>();
+			tempFiles.add(fileToBeDeleted);
+			Util.setPasteSrcFile(tempFiles, Util.getPasteMode());
 			caller.runOnUiThread(new Runnable() {
 
 				@Override
@@ -111,7 +114,7 @@ public class Trasher extends AsyncTask<File, Integer, Boolean> {
 			Log.v(TAG,
 					"Checking if file on clipboard is same as that being deleted");
 			if (Util.getFileToPaste() != null
-					&& Util.getFileToPaste().getCanonicalPath()
+					&& Util.getFileToPaste().get(0).getCanonicalPath()
 							.equals(fileToBeDeleted.getCanonicalPath())) {
 				Log.v(TAG, "File on clipboard is being deleted");
 				Util.setPasteSrcFile(null, Util.getPasteMode());

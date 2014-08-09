@@ -1,5 +1,6 @@
 package com.bdcorps.fileexpressfree.util;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -22,9 +23,11 @@ import com.bdcorps.fileexpressfree.R;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.bdcorps.fileexpressfree.activity.FileListActivity;
+import com.bdcorps.fileexpressfree.adapters.FileListAdapter;
 import com.bdcorps.fileexpressfree.callbacks.CancellationCallback;
 import com.bdcorps.fileexpressfree.callbacks.OperationCallback;
 import com.bdcorps.fileexpressfree.model.FileListEntry;
@@ -35,19 +38,29 @@ import com.bdcorps.fileexpressfree.workers.Zipper;
 public class FileActionsHelper {
 
 	protected static final String TAG = FileActionsHelper.class.getName();
-
-	public static void copyFile(File file, FileListActivity mContext) {
-		Util.setPasteSrcFile(file, Util.PASTE_MODE_COPY);
+	private static int fileCount;
+			
+	public static void copyFile(ArrayList<File> filePaths2, FileListActivity mContext) {
+		 fileCount = ((FileListAdapter) mContext.getListView()
+					.getAdapter()).getSelectedCount();
+		 
+		 Util.setPasteSrcFile(filePaths2, Util.PASTE_MODE_COPY);
+		 
+		 if (fileCount==1){
 		Toast.makeText(mContext.getApplicationContext(),
-				mContext.getString(R.string.copied_toast, file.getName()),
-				Toast.LENGTH_SHORT).show();
+				mContext.getString(R.string.copied_toast, "102"),
+				Toast.LENGTH_SHORT).show();}
+		 else 
+		 {Toast.makeText(mContext.getApplicationContext(),
+					mContext.getString(R.string.copied_toast, "102"),
+					Toast.LENGTH_SHORT).show();}
 		mContext.invalidateOptionsMenu();
 	}
 
-	public static void cutFile(final File file, final FileListActivity mContext) {
-		Util.setPasteSrcFile(file, Util.PASTE_MODE_MOVE);
+	public static void cutFile(ArrayList<File> filePaths2, final FileListActivity mContext) {
+		Util.setPasteSrcFile(filePaths2, Util.PASTE_MODE_MOVE);
 		Toast.makeText(mContext.getApplicationContext(),
-				mContext.getString(R.string.cut_toast, file.getName()),
+				mContext.getString(R.string.cut_toast, "104"),
 				Toast.LENGTH_SHORT).show();
 		mContext.invalidateOptionsMenu();
 	}
@@ -78,19 +91,20 @@ public class FileActionsHelper {
 							}).show();
 	}
 
-	public static void deleteFile(final File file,
+	public static void deleteFile(final ArrayList<FileListEntry> fileArray,
 			final FileListActivity mContext,
 			final OperationCallback<Void> callback) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		builder.setCancelable(true);
 		builder.setMessage(
-				mContext.getString(R.string.confirm_delete, file.getName()))
+				mContext.getString(R.string.confirm_delete, "101"))
 				.setCancelable(false)
 				.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-
-								new Trasher(mContext, callback).execute(file);
+for (int i = 0; i < fileArray.size(); i++) {
+	new Trasher(mContext, callback).execute(fileArray.get(i).getPath());	
+}
 							}
 						})
 				.setNegativeButton(android.R.string.cancel,
@@ -396,9 +410,17 @@ public class FileActionsHelper {
 		input.setText(mContext.getCurrentDir().getAbsolutePath());
 	}
 
-	public static void doOperation(FileListEntry entry, int action,
+	public static void doOperation(ArrayList<FileListEntry> fileArray, int action,
 			FileListActivity mContext, OperationCallback<Void> callback) {
-
+		ArrayList<File> filePaths = new ArrayList<File>();
+	Log.d("StripedLog", "filesize"+fileArray.size());
+		for (int i = 0; i < fileArray.size(); i++) {
+			filePaths.add(fileArray.get(i).getPath());
+		}
+		
+	
+FileListEntry entry= fileArray.get(0);
+		
 		File file = entry.getPath();
 		switch (action) {
 
@@ -409,15 +431,15 @@ public class FileActionsHelper {
 			break;
 
 		case R.id.menu_copy:
-			copyFile(file, mContext);
+			copyFile(filePaths, mContext);
 			break;
 
 		case R.id.menu_cut:
-			cutFile(file, mContext);
+			cutFile(filePaths, mContext);
 			break;
 
 		case R.id.menu_delete:
-			deleteFile(file, mContext, callback);
+			deleteFile(fileArray, mContext, callback);
 			break;
 
 		case R.id.menu_share:
@@ -447,6 +469,7 @@ public class FileActionsHelper {
 
 	}
 
+	@SuppressLint("NewApi")
 	public static void rescanMedia(Activity mContext) {
 
 		mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri
