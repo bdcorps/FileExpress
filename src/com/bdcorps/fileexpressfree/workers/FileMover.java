@@ -6,6 +6,7 @@ import com.bdcorps.fileexpressfree.activity.FileListActivity;
 import com.bdcorps.fileexpressfree.util.AbortionFlag;
 import com.bdcorps.fileexpressfree.util.Util;
 
+import com.bdcorps.fileexpressfree.CustomToast;
 import com.bdcorps.fileexpressfree.R;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
@@ -46,13 +47,9 @@ public class FileMover extends AsyncTask<File, Integer, Boolean> {
 						moveProgressDialog.dismiss();
 					}
 					if (mode == Util.PASTE_MODE_COPY) {
-						Toast.makeText(caller.getApplicationContext(),
-								caller.getString(R.string.copy_complete),
-								Toast.LENGTH_LONG);
-					} else {
-						Toast.makeText(caller.getApplicationContext(),
-								caller.getString(R.string.move_complete),
-								Toast.LENGTH_LONG);
+CustomToast.ToastMe(caller.getString(R.string.copy_complete), caller);
+											} else {
+CustomToast.ToastMe(caller.getString(R.string.move_complete), caller);
 					}
 					caller.refresh();
 				}
@@ -65,11 +62,10 @@ public class FileMover extends AsyncTask<File, Integer, Boolean> {
 					if (moveProgressDialog.isShowing()) {
 						moveProgressDialog.dismiss();
 					}
-					Toast.makeText(
-							caller.getApplicationContext(),
-							caller.getString(R.string.generic_operation_failed),
-							Toast.LENGTH_LONG);
-				}
+
+CustomToast.ToastMe(
+		caller.getString(R.string.generic_operation_failed), caller);
+									}
 			});
 		}
 	}
@@ -87,6 +83,7 @@ public class FileMover extends AsyncTask<File, Integer, Boolean> {
 	protected void onPreExecute() {
 		caller.runOnUiThread(new Runnable() {
 
+			@SuppressWarnings("deprecation")
 			@Override
 			public void run() {
 

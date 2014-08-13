@@ -7,6 +7,7 @@ import com.bdcorps.fileexpressfree.activity.FileListActivity;
 import com.bdcorps.fileexpressfree.callbacks.OperationCallback;
 import com.bdcorps.fileexpressfree.util.Util;
 
+import com.bdcorps.fileexpressfree.CustomToast;
 import com.bdcorps.fileexpressfree.R;
 import android.app.AlertDialog.Builder;
 import android.app.ProgressDialog;
@@ -56,8 +57,9 @@ public class Trasher extends AsyncTask<File, Integer, Boolean> {
 				@Override
 				public void run() {
 					waitDialog.dismiss();
-					Toast.makeText(caller.getApplicationContext(), "Deleted",
-							Toast.LENGTH_LONG);
+
+CustomToast.ToastMe(
+		caller.getString(R.string.generic_operation_failed), caller);
 					if (callback != null) {
 						callback.onSuccess();
 					}

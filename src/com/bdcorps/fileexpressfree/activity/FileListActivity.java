@@ -18,10 +18,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -32,6 +35,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bdcorps.fileexpressfree.CustomToast;
 import com.bdcorps.fileexpressfree.FileExplorerApp;
 import com.bdcorps.fileexpressfree.R;
 import com.bdcorps.fileexpressfree.adapters.FileListAdapter;
@@ -85,6 +89,7 @@ public class FileListActivity extends BaseFileListActivity {
 
 		// The "loadAdOnCreate" and "testDevices" XML attributes no longer
 		// available.
+	
 		AdView adView = (AdView) this.findViewById(R.id.adView);
 		AdRequest adRequest = new AdRequest.Builder().addTestDevice(
 				AdRequest.DEVICE_ID_EMULATOR).build();
@@ -103,17 +108,30 @@ public class FileListActivity extends BaseFileListActivity {
 		} else {
 			EulaPopupBuilder.create(this).show();
 		}
+			}
+
+	private void toastMe(String text) {
+		LayoutInflater inflater = getLayoutInflater();
+		View layout = inflater.inflate(R.layout.toast_custom_layout,
+				(ViewGroup) findViewById(R.id.toast_layout_root));
+		Toast toast = new Toast(getApplicationContext());
+		TextView t = (TextView) layout.findViewById(R.id.textView1);
+		t.setText(text);
+		toast.setGravity(Gravity.BOTTOM, 0, 150);
+		toast.setDuration(Toast.LENGTH_LONG);
+		toast.setView(layout);
+		toast.show();			
 	}
 
 	private void initUi() {
 		if (isPicker) {
 			getWindow().setUiOptions(0);
 		}
-
 	}
 
 	private void onListItemCheck(int position) {
 		adapter.toggleSelection(position);
+		
 		if (mCurrentActionMode != null) {
 			if (adapter.getSelectedCount() == 0) {
 				mCurrentActionMode.finish();
@@ -175,18 +193,17 @@ public class FileListActivity extends BaseFileListActivity {
 
 				if (mCurrentActionMode != null) {
 					return false;
-				}/*
-				 * if (Util.isProtected(fileListEntry.getPath())) { return
-				 * false; }
-				 */
+				}
+				 if (Util.isProtected(((FileListEntry)getListView().getAdapter().getItem(position))
+							.getPath())) { 
+					 select(((FileListEntry)getListView().getAdapter().getItem(position))
+								.getPath());
+					 
+				 }
+				 
 				// explorerListView.setEnabled(false);
 
-				Log.d("StripedLog",
-						"m:" + String.valueOf(fileArray.size()));
-				Toast.makeText(getApplicationContext(),
-						String.valueOf(fileArray.size())+" : "+adapter.getSelectedCount(), Toast.LENGTH_SHORT).show();
-				
-				mCurrentActionMode = FileListActivity.this
+						mCurrentActionMode = FileListActivity.this
 						.startActionMode(new FileActionsCallback(
 								FileListActivity.this, ((FileListAdapter) getListView()
 										.getAdapter()).getFileArray()) {
@@ -450,7 +467,6 @@ public class FileListActivity extends BaseFileListActivity {
 
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
-
 		if (!isPicker) {
 			if (getPreferenceHelper().isMediaExclusionEnabled()) {
 				menu.findItem(R.id.menu_media_exclusion).setVisible(true);
@@ -550,15 +566,13 @@ public class FileListActivity extends BaseFileListActivity {
 		FileActionsHelper.rescanMedia(this);
 		refresh();
 	}
-
+		
 	private void confirmPaste() {
-
-		AlertDialog.Builder alert = new AlertDialog.Builder(this);
+	AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 		alert.setTitle(getString(R.string.confirm));
-		alert.setMessage(getString(R.string.confirm_paste_text, "103"));
-
-		alert.setPositiveButton(android.R.string.ok,
+		alert.setMessage(getString(R.string.confirm_paste_text));
+	alert.setPositiveButton(android.R.string.ok,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int whichButton) {
 
@@ -581,7 +595,6 @@ public class FileListActivity extends BaseFileListActivity {
 	}
 
 	private void confirmCreateFolder() {
-
 		AlertDialog.Builder alert = new AlertDialog.Builder(this);
 
 		alert.setTitle(getString(R.string.create_folder));

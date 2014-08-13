@@ -14,10 +14,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 import android.webkit.MimeTypeMap;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bdcorps.fileexpressfree.CustomToast;
 import com.bdcorps.fileexpressfree.R;
 
 import java.io.File;
@@ -39,29 +45,47 @@ public class FileActionsHelper {
 
 	protected static final String TAG = FileActionsHelper.class.getName();
 	private static int fileCount;
-			
-	public static void copyFile(ArrayList<File> filePaths2, FileListActivity mContext) {
-		 fileCount = ((FileListAdapter) mContext.getListView()
-					.getAdapter()).getSelectedCount();
-		 
-		 Util.setPasteSrcFile(filePaths2, Util.PASTE_MODE_COPY);
-		 
-		 if (fileCount==1){
-		Toast.makeText(mContext.getApplicationContext(),
-				mContext.getString(R.string.copied_toast, "102"),
-				Toast.LENGTH_SHORT).show();}
-		 else 
-		 {Toast.makeText(mContext.getApplicationContext(),
-					mContext.getString(R.string.copied_toast, "102"),
-					Toast.LENGTH_SHORT).show();}
+
+	public static void copyFile(ArrayList<File> filePaths2,
+			FileListActivity mContext) {
+		getCount(mContext);
+
+		Util.setPasteSrcFile(filePaths2, Util.PASTE_MODE_COPY);
+
+		if (fileCount == 1) {
+
+CustomToast.ToastMe(
+		mContext.getString(R.string.copied_toast, filePaths2.get(0)
+				.getName()), mContext);
+
+		} else {
+
+CustomToast.ToastMe(mContext.getString(R.string.copied_multi_toast,
+		String.valueOf(fileCount)), mContext);
+		}
 		mContext.invalidateOptionsMenu();
 	}
 
-	public static void cutFile(ArrayList<File> filePaths2, final FileListActivity mContext) {
+	private static void getCount(FileListActivity mContext) {
+		fileCount = ((FileListAdapter) mContext.getListView().getAdapter())
+				.getSelectedCount();
+	}
+
+	public static void cutFile(ArrayList<File> filePaths2,
+			final FileListActivity mContext) {
+		getCount(mContext);
 		Util.setPasteSrcFile(filePaths2, Util.PASTE_MODE_MOVE);
-		Toast.makeText(mContext.getApplicationContext(),
-				mContext.getString(R.string.cut_toast, "104"),
-				Toast.LENGTH_SHORT).show();
+		if (fileCount == 1) {
+
+CustomToast.ToastMe(mContext.getString(R.string.cut_toast, filePaths2.get(0)
+		.getName()), mContext);
+
+		} else {
+			
+
+CustomToast.ToastMe(mContext.getString(R.string.cut_multi_toast,
+		String.valueOf(fileCount)), mContext);
+		}
 		mContext.invalidateOptionsMenu();
 	}
 
@@ -94,17 +118,24 @@ public class FileActionsHelper {
 	public static void deleteFile(final ArrayList<FileListEntry> fileArray,
 			final FileListActivity mContext,
 			final OperationCallback<Void> callback) {
+		getCount(mContext);
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		builder.setCancelable(true);
-		builder.setMessage(
-				mContext.getString(R.string.confirm_delete, "101"))
-				.setCancelable(false)
+		if (fileCount == 1) {
+			builder.setMessage(mContext.getString(R.string.confirm_delete,
+					fileArray.get(0).getPath()));
+		} else {
+			builder.setMessage(mContext.getString(
+					R.string.confirm_multi_delete, String.valueOf(fileCount)));
+		}
+		builder.setCancelable(false)
 				.setPositiveButton(android.R.string.ok,
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int id) {
-for (int i = 0; i < fileArray.size(); i++) {
-	new Trasher(mContext, callback).execute(fileArray.get(i).getPath());	
-}
+								for (int i = 0; i < fileArray.size(); i++) {
+									new Trasher(mContext, callback)
+											.execute(fileArray.get(i).getPath());
+								}
 							}
 						})
 				.setNegativeButton(android.R.string.cancel,
@@ -187,13 +218,13 @@ for (int i = 0; i < fileArray.size(); i++) {
 											if (callback != null) {
 												callback.onSuccess();
 											}
-											Toast.makeText(
-													mContext,
+											
+											CustomToast.ToastMe(
 													mContext.getString(
 															R.string.rename_toast,
 															file.getName(),
-															newName),
-													Toast.LENGTH_LONG).show();
+															newName), mContext);
+													
 											mContext.refresh();
 										} else {
 											if (callback != null) {
@@ -410,17 +441,16 @@ for (int i = 0; i < fileArray.size(); i++) {
 		input.setText(mContext.getCurrentDir().getAbsolutePath());
 	}
 
-	public static void doOperation(ArrayList<FileListEntry> fileArray, int action,
-			FileListActivity mContext, OperationCallback<Void> callback) {
+	public static void doOperation(ArrayList<FileListEntry> fileArray,
+			int action, FileListActivity mContext,
+			OperationCallback<Void> callback) {
 		ArrayList<File> filePaths = new ArrayList<File>();
-	Log.d("StripedLog", "filesize"+fileArray.size());
 		for (int i = 0; i < fileArray.size(); i++) {
 			filePaths.add(fileArray.get(i).getPath());
 		}
-		
-	
-FileListEntry entry= fileArray.get(0);
-		
+
+		FileListEntry entry = fileArray.get(0);
+
 		File file = entry.getPath();
 		switch (action) {
 
@@ -475,8 +505,9 @@ FileListEntry entry= fileArray.get(0);
 		mContext.sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri
 				.parse("file://" + Environment.getExternalStorageDirectory())));
 
-		Toast.makeText(mContext, R.string.media_rescan_started,
-				Toast.LENGTH_SHORT).show();
+CustomToast.ToastMe(mContext.getString(R.string.media_rescan_started,
+		String.valueOf(fileCount)), mContext);
+		
 		Notification noti = new Notification.Builder(mContext)
 				.setContentTitle(
 						mContext.getString(R.string.media_rescan_started))
@@ -508,6 +539,4 @@ FileListEntry entry= fileArray.get(0);
 		mContext.startActivity(Intent.createChooser(intent,
 				mContext.getString(R.string.share_via)));
 
-	}
-
-}
+	}}

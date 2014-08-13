@@ -39,8 +39,6 @@ public abstract class FileActionsCallback implements Callback {
 
 	@Override
 	public boolean onActionItemClicked(final ActionMode mode, MenuItem item) {
-Log.d("StripedLog", "msg"+ ((FileListAdapter) activity.getListView()
-		.getAdapter()).getSelectedCount());
 		FileActionsHelper.doOperation(((FileListAdapter) activity.getListView()
 				.getAdapter()).getFileArray(), item.getItemId(), activity,
 				new OperationCallback<Void>() {
@@ -62,12 +60,7 @@ Log.d("StripedLog", "msg"+ ((FileListAdapter) activity.getListView()
 	@Override
 	public boolean onCreateActionMode(final ActionMode actionMode, Menu menu) {
 		int[] validOptions = null;
-		Log.d("StripedLog",
-				"p: "
-						+ String.valueOf(((FileListAdapter) activity
-								.getListView().getAdapter()).getSelectedCount()));
-
-		if (((FileListAdapter) activity.getListView().getAdapter())
+				if (((FileListAdapter) activity.getListView().getAdapter())
 				.getSelectedCount() == 1) {
 			validOptions = FileActionsHelper.getContextMenuOptions(
 					((FileListAdapter) activity.getListView().getAdapter())
@@ -84,7 +77,7 @@ Log.d("StripedLog", "msg"+ ((FileListAdapter) activity.getListView()
 				}
 			}
 		}
-
+		
 		if (validOptions == null || validOptions.length == 0) {
 			onDestroyActionMode(actionMode);
 			return false;

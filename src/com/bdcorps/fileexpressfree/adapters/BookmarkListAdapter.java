@@ -71,7 +71,7 @@ public class BookmarkListAdapter extends BaseAdapter {
 
 		ViewHolder holder = null;
 		if (convertView == null) {
-			convertView = mInflater.inflate(R.layout.bookmark_list_item,
+			convertView = mInflater.inflate(R.layout.favorite_list_item,
 					parent, false);
 			holder = new ViewHolder();
 			holder.resName = (TextView) convertView

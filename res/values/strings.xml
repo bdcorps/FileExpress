@@ -65,7 +65,9 @@
 	<string name="open_using">Open using</string>
 	
 	<string name="copied_toast">%1$s copied</string>
+	<string name="copied_multi_toast">%1$s files copied</string>
 	<string name="cut_toast">%1$s cut</string>
+	<string name="cut_multi_toast">%1$s files cut</string>
 	<string name="rename_toast">%1$s renamed to %2$s</string>
 	
 	<string name="zip_success">Selected files(s) have been zipped to %1$s</string>
@@ -107,9 +109,10 @@
 	
 	<string name="confirm_app_restart">Do you wish to restart app and apply new theme?</string>
 	<string name="confirm_delete">Are you sure you want to delete %1$s ?</string>
+		<string name="confirm_multi_delete">Are you sure you want to delete these %1$s files ?</string>
 	<string name="confirm_remove_bookmark">Are you sure you want to remove favorite for %1$s ?</string>
 	
-	<string name="confirm_paste_text">Are you sure you want to paste %1$s ?</string>
+	<string name="confirm_paste_text">Are you sure you want to paste here?</string>
 	<string name="delete_failed">%1$s could not be deleted</string>
 	
 	<string name="rename_failed">%1$s could not be renamed</string>
@@ -127,7 +130,7 @@
 	
 	<string name="querying_filesys">Querying File System. Please wait.</string>
 	
-	<string name="copy_complete">Copy complete.</string>
+	<string name="copy_complete">Copying complete</string>
 	<string name="move_complete">Resource successfully moved to new location</string>
 	
 	<string name="generic_operation_failed">Could not complete operation</string>
