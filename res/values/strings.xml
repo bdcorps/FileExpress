@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
-	<string name="app_name">File Express</string>
+	<string name="app_name">File Express 360 Free</string>
 	<string name="settings">Preferences</string>
 		<string name="bookmarks">Favorites</string>
 	
-	<string name="eula_popup_title">Welcome to File Express</string>
-	<string name="eula_popup_text">Congratulations! You have just installed File Express which is the best file manager in the world. How do you feel?</string>
+	<string name="eula_popup_title">Welcome to File Express 360 Free</string>
+	<string name="eula_popup_text">Congratulations! You have just installed File Express 360 Free which is the best file manager in the world. How do you feel?</string>
 
 	<string name="eula_accept">Awesome!</string>
 	<string name="eula_decline">Not great...</string>
@@ -131,7 +131,7 @@
 	<string name="querying_filesys">Querying File System. Please wait.</string>
 	
 	<string name="copy_complete">Copying complete</string>
-	<string name="move_complete">Resource successfully moved to new location</string>
+	<string name="move_complete">File successfully moved</string>
 	
 	<string name="generic_operation_failed">Could not complete operation</string>
 	
@@ -141,7 +141,7 @@
 	<string name="pref_cat_display_summary">Set theme, sort order and other view options</string>
 	
 	<string name="pref_cat_misc">Miscellaneous</string>
-	<string name="pref_cat_about">About File Express</string>
+	<string name="pref_cat_about">About File Express 360 Free</string>
 	<string name="pref_cat_contact">Contact</string>
 	<string name="pref_cat_share">Share</string>
 	<string name="pref_cat_misc_summary">About the developer, contact info, terms and conditions</string>
@@ -150,7 +150,7 @@
 	<string name="pref_cat_nav_summary">Configure navigation features like back button and quick actions popups</string>
 	
 	<string name="pref_home_folder">Start up folder</string>
-	<string name="pref_home_folder_desc">File explorer will open this folder at when started</string>
+	<string name="pref_home_folder_desc">File Express 360 Free will open this folder at when started</string>
 
 	<string name="pref_showhidden">Show hidden paths</string>
 	<string name="pref_showhidden_on">Hidden files and folders are shown</string>

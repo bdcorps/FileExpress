@@ -33,7 +33,7 @@ import java.util.Map;
 public final class Util {
 
 	private static final String TAG = Util.class.getName();
-	private static ArrayList<File> COPIED_FILES = null;
+	public static ArrayList<File> COPIED_FILES = null;
 	private static int pasteMode = 1;
 
 	public static final int PASTE_MODE_COPY = 0;

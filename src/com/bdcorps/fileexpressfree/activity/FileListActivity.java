@@ -13,7 +13,7 @@ import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -35,7 +35,6 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bdcorps.fileexpressfree.CustomToast;
 import com.bdcorps.fileexpressfree.FileExplorerApp;
 import com.bdcorps.fileexpressfree.R;
 import com.bdcorps.fileexpressfree.adapters.FileListAdapter;
@@ -259,7 +258,7 @@ public class FileListActivity extends BaseFileListActivity {
 		actionBar.setDisplayHomeAsUpEnabled(true);
 		actionBar.setDisplayShowTitleEnabled(false);
 		actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_LIST);
-		// actionBar.setBackgroundDrawable(new ColorDrawable(0xffff8c00));
+	//	 actionBar.setBackgroundDrawable(new ColorDrawable(0x99ff8c00));
 
 		mSpinnerAdapter = new ArrayAdapter<CharSequence>(this,
 				android.R.layout.simple_spinner_dropdown_item, gotoLocations);
@@ -477,15 +476,12 @@ public class FileListActivity extends BaseFileListActivity {
 			}
 			menu.findItem(R.id.menu_bookmark_toggle).setChecked(
 					bookmarker.isBookmarked(currentDir.getAbsolutePath()));
-			
-			if (((FileListAdapter) getListView()
-					.getAdapter()).getSelectedCount()!=0){
-			if (Util.canPaste(((FileListAdapter) getListView()
-					.getAdapter()).getItems().get(0).getPath())) {
+					
+			if (FileActionsHelper.fileCount!=0){
 				menu.findItem(R.id.menu_paste).setVisible(true);
 			} else {
 				menu.findItem(R.id.menu_paste).setVisible(false);
-			}	}
+			}	
 		}
 		return super.onPrepareOptionsMenu(menu);
 	}

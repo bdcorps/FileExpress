@@ -44,7 +44,7 @@ import com.bdcorps.fileexpressfree.workers.Zipper;
 public class FileActionsHelper {
 
 	protected static final String TAG = FileActionsHelper.class.getName();
-	private static int fileCount;
+	public static int fileCount;
 
 	public static void copyFile(ArrayList<File> filePaths2,
 			FileListActivity mContext) {
